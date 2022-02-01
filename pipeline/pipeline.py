@@ -16,8 +16,8 @@ from sklearn.preprocessing import FunctionTransformer
 import pickle
 
 # Importamos los datasets
-data_train = pd.read_csv("C:/Users/54112/source/repos/ventas_pi/data/Train_BigMart.csv")
-data_test = pd.read_csv("C:/Users/54112/source/repos/ventas_pi/data/Test_BigMart.csv")
+data_train = pd.read_csv("../ventas_pi/data/Train_BigMart.csv")
+data_test = pd.read_csv("../ventas_pi/data/Test_BigMart.csv")
 
 """"
 PRIMER PASO: GUARDAR DATOS ÚTILES
@@ -33,7 +33,7 @@ columnas = data_train.drop(["Outlet_Type"], axis=1).columns.tolist()
 dummies = x.columns.tolist()
 for i in columnas:
     dummies.remove(i)
-with open("C:/Users/54112/source/repos/ventas_pi/pipeline/dummies.pkl", "wb") as f:
+with open("../ventas_pi/pipeline/dummies.pkl", "wb") as f:
     pickle.dump(dummies, f)
 # Identificando la data de train y de test, para posteriormente unión y separación
 data_train["Set"] = "train"
@@ -49,14 +49,14 @@ for i in productos:
     mode_dict[i] = moda
 # Para codificar los niveles de precios se usan cuantiles los cuales surgen de usar
 # el dataset entero... de nuevo si tenemos una sola fila no podremos generar esos valores
-with open("C:/Users/54112/source/repos/ventas_pi/pipeline/mode_dict.pkl", "wb") as f:
+with open("../ventas_pi/pipeline/mode_dict.pkl", "wb") as f:
     pickle.dump(mode_dict, f)
 q1 = data.iloc[:, 5].quantile(0.25)
 q2 = data.iloc[:, 5].quantile(0.50)
 q3 = data.iloc[:, 5].quantile(0.75)
 q = [q1, q2, q3]
 
-with open("C:/Users/54112/source/repos/ventas_pi/pipeline/q.pkl", "wb") as f:
+with open("../ventas_pi/pipeline/q.pkl", "wb") as f:
     pickle.dump(q, f)
 
 """"
@@ -66,7 +66,7 @@ SEGUNDO PASO: CREACIÓN FUNCTION TRANSFORMER
 
 def ft(x):
     Z = x.copy()
-    with open("C:/Users/54112/source/repos/ventas_pi/pipeline/dummies.pkl", "rb") as f:
+    with open("../ventas_pi/pipeline/dummies.pkl", "rb") as f:
         dummies = pickle.load(f)
     # FEATURES ENGINEERING: Codificación de variables nominales
     for i in dummies:
@@ -81,7 +81,7 @@ def ft(x):
     Z[:, 2] = np.where(Z[:, 2] == "reg", "Regular", Z[:, 2])
     # LIMPIEZA: de faltantes en el peso de los productos
     with open(
-        "C:/Users/54112/source/repos/ventas_pi/pipeline/mode_dict.pkl", "rb"
+        "../ventas_pi/pipeline/mode_dict.pkl", "rb"
     ) as f:
         mode_dict = pickle.load(f)
     for i, j in mode_dict.items():
@@ -89,7 +89,7 @@ def ft(x):
             (Z[:, 0] == i) & (np.isnan(Z[:, 1].astype(float))), j, Z[:, 1]
         )
     # FEATURES ENGINEERING: Codificando los niveles de precios de los productos
-    with open("C:/Users/54112/source/repos/ventas_pi/pipeline/q.pkl", "rb") as f:
+    with open("../ventas_pi/pipeline/q.pkl", "rb") as f:
         q = pickle.load(f)
     Z[:, 5] = np.where(Z[:, 5] <= q[0], 1, Z[:, 5])
     Z[:, 5] = np.where((Z[:, 5] > q[0]) & (Z[:, 5] <= q[1]), 2, Z[:, 5])
@@ -143,5 +143,5 @@ if __name__ == "__main__":
     R2_val = pipe.score(x_val, y_val)
     print("VALIDACIÓN: RMSE: {:.2f} - R2: {:.4f}".format(mse_val**0.5, R2_val))
     # Guardamos el pipeline
-    with open("C:/Users/54112/source/repos/ventas_pi/pipeline/pipe.pkl", "wb") as f:
+    with open("../ventas_pi/pipeline/pipe.pkl", "wb") as f:
         pickle.dump(pipe, f)
