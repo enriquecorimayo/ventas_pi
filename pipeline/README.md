@@ -11,6 +11,7 @@
 - Hacer el análisis por grid search cv, Random search, etc.
 - Agregar código "expanding window" y "rolling window" y evaluar los distintos resultados para detectar Data Drift, Data Concept en producción.
 - Ordenar las direcciones de los archivos en el repositorio, sobre todo los pkl.
+- Unit testing (Pytest).
 
 
 ### NEXT STEPS
